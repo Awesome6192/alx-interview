@@ -1,53 +1,21 @@
 #!/usr/bin/python3
-"""Solves the lockboxes puzzle"""
-
-
-def look_next_opened_box(opened_boxes):
-    """Looks for the next opened box
-    Args:
-        opened_boxes (dict): Dictionary which contains boxes already opened
-    Returns:
-        list: List with the keys contained in the opened box
-    """
-    for box in opened_boxes.values():
-        if box['status'] == 'opened':
-            box['status'] = 'opened/checked'
-            return box['keys']
-    return None
+'''A module for working with lockboxes.
+'''
 
 
 def canUnlockAll(boxes):
-    """Check if all boxes can be opened
-    Args:
-        boxes (list): List containing all the boxes with the keys
-    Returns:
-        bool: True if all boxes can be opened, otherwise False
-    """
-    if not boxes or len(boxes) == 1:
-        return True
-
-    opened_boxes = {0: {'status': 'opened', 'keys': boxes[0]}}
-
-    while True:
-        keys = look_next_opened_box(opened_boxes)
-        if keys:
-            for key in keys:
-                if key < len(boxes) and key not in opened_boxes:
-                    opened_boxes[key] = {
-                            'status': 'opened',
-                            'keys': boxes[key]
-                    }
-                else:
-                    break
-
-    return len(opened_boxes) == len(boxes)
-
-
-def main():
-    """Entry point for testing"""
-    test_boxes = [[1], [2], [3], [4], []]
-    print(canUnlockAll(test_boxes))
-
-
-if __name__ == '__main__':
-    main()
+    '''Checks if all the boxes in a list of boxes containing the keys
+    (indices) to other boxes can be unlocked given that the first
+    box is unlocked.
+    '''
+    n = len(boxes)
+    seen_boxes = set([0])
+    unseen_boxes = set(boxes[0]).difference(set([0]))
+    while len(unseen_boxes) > 0:
+        boxIdx = unseen_boxes.pop()
+        if not boxIdx or boxIdx >= n or boxIdx < 0:
+            continue
+        if boxIdx not in seen_boxes:
+            unseen_boxes = unseen_boxes.union(boxes[boxIdx])
+            seen_boxes.add(boxIdx)
+    return n == len(seen_boxes)
